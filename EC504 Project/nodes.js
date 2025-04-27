@@ -1,5 +1,6 @@
 let nodeCount = 0; //number of nodes: accurate
 let edgeCount = 0; //number of edges: accurate
+import { NodeItem, Arc, DijkstraHeap, printOutput } from './shortPaths.js';
 
 
 const addNodeButton = document.getElementById("addNodeButton"); //addNode button
@@ -301,6 +302,34 @@ document.getElementById('dijkstraButton').addEventListener('click', function() {
     for (const edge of edgeList) {
         formattedEdgeList += `${edge[0]} ${edge[1]} ${edge[2]}\n`;
     }
+
+    // Now you will call the DijkstraHeap function from your imported module
+    const nodes = [];
+    for (let i = 0; i <= nodeCount; i++) {
+        nodes[i] = new NodeItem(i);
+    }
+
+    // Assuming createEdgeListFromConnections() returns a valid edge list
+    for (const edge of edgeList) {
+        const [start, end, length] = edge;
+        const arc = new Arc(end, length);
+        arc.next = nodes[start].first;
+        nodes[start].first = arc;
+    }
+
+    // Reset the nodes
+    for (let i = 0; i <= nodeCount; i++) {
+        nodes[i].distance = 99999999; // LARGE
+        nodes[i].P = -1;
+        nodes[i].position = -1;
+    }
+
+    const Origin = originNodeId; // Use the input node
+    console.log("CALLING Dijkstra Heap\n");
+    DijkstraHeap(nodes, Origin, nodeCount);
+
+    console.log("PRINTING RESULTS:");
+    printOutput(nodes, Origin, nodeCount);
     const blob = new Blob([formattedEdgeList], { type: 'text/plain' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
