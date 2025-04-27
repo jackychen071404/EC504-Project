@@ -2,6 +2,22 @@ let nodeCount = 0;
 
 const addNodeButton = document.getElementById("addNodeButton"); //addNode button
 const nodeInput = document.getElementById("nodeValueInput"); //
+const dijkstraButton = document.getElementById("dijkstraButton"); // Dijkstra button
+const originInput = document.getElementById("Or");               // Origin node input
+
+dijkstraButton.addEventListener('click', function() {
+    const originNodeId = originInput.value.trim();
+
+    if (originNodeId === "") {
+        alert("Please enter a valid origin node ID!");
+        return;
+    }
+
+    console.log("Origin node entered:", originNodeId);
+
+    // Here you would call runDijkstra(originNodeId);
+});
+
 
 const topMargin = 60;      
 const leftMargin = 250;     
@@ -144,6 +160,7 @@ function drawLineBetweenVisualNodes(div1, div2) {
     const text = createTextForLine(line, midX, midY);
 
     connections.push({ line, div1, div2, text});
+    console.log(`Created connection between ${div1.id} and ${div2.id}`);
 }
 
 function updateConnectedLines(node) {
@@ -203,6 +220,15 @@ function createTextForLine(line, midX, midY) {
 
     svg.appendChild(newText);
     return newText;
+}
+
+function doesNodeExist(nodeId) {
+    for (const conn of connections) {
+        if (conn.div1.id === nodeId || conn.div2.id === nodeId) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function makeDraggable(el) {
