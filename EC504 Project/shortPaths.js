@@ -55,7 +55,7 @@ function DijkstraHeap(N, Or, Nm) {
 }
 function printOutput(N, Origin, Nm) {
     let Nd = 10; // number of destinations to select
-    let SelectDestinations = new Array(Nd + 1);
+    let SelectDestinations = new Array(Nd);
     let take, col;
 
     if (Nd < Nm) {
@@ -66,21 +66,21 @@ function printOutput(N, Origin, Nm) {
         }
     } else {
         Nd = Nm;
-        for (let i = 1; i <= Nm; i++) {
-            SelectDestinations[i] = i;
+        SelectDestinations = new Array(Nd);
+        for (let i = 0; i < Nd; i++) {
+            SelectDestinations[i] = i + 1;
         }
     }
 
     for (let i = 0; i < Nd; i++) {
         col = SelectDestinations[i];
-        // Add a check to ensure the node is valid before accessing properties
-        if (!N[col]) {
-            console.error(`Node ${col} is undefined!`);
-            continue; // Skip this iteration if the node is invalid
+        if (!N[col] || N[col].distance === LARGE1) {
+            console.error(`Node ${col} is undefined or unreachable!`);
+            continue;
         }
 
         console.log(`Shortest distance from ${Origin} to ${col}: ${N[col].distance}`);
-        
+
         let path = `${col}`;
         col = N[col].P;
         while (col > 0) {
@@ -90,4 +90,5 @@ function printOutput(N, Origin, Nm) {
         console.log(path);
     }
 }
+
 export { NodeItem, Arc, DijkstraHeap, printOutput };
