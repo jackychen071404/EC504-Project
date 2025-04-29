@@ -294,7 +294,7 @@ document.getElementById('dijkstraButton').addEventListener('click', function() {
 
     console.log("Origin node entered:", originNodeId);
 
-    console.log(edgeCount);
+    console.log("edgeCount: ",edgeCount);
     
     const edgeList = createEdgeListFromConnections();
     let formattedEdgeList = '';
@@ -304,10 +304,11 @@ document.getElementById('dijkstraButton').addEventListener('click', function() {
     }
 
     // Now you will call the DijkstraHeap function from your imported module
-    const nodes = [];
-    for (let i = 0; i <= nodeCount; i++) {
+    const nodes = new Array(nodeCount + 1);
+    for (let i = 1; i <= nodeCount; i++) {
         nodes[i] = new NodeItem(i);
     }
+    
 
     // Assuming createEdgeListFromConnections() returns a valid edge list
     for (const edge of edgeList) {
@@ -318,7 +319,7 @@ document.getElementById('dijkstraButton').addEventListener('click', function() {
     }
 
     // Reset the nodes
-    for (let i = 0; i <= nodeCount; i++) {
+    for (let i = 1; i <= nodeCount; i++) {
         nodes[i].distance = 99999999; // LARGE
         nodes[i].P = -1;
         nodes[i].position = -1;
