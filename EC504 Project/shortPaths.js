@@ -1,4 +1,5 @@
 import { Heap } from './myHeap.js'; // Assuming your heap is exported like this
+import { nodeMapping, reverseMapping } from './nodes.js';
 
 // Define constants
 const LARGE1 = 9999999;
@@ -29,6 +30,7 @@ function DijkstraHeap(N, Or, Nm) {
     const thisHeap = new Heap();
 
     N[Or].distance = 0;
+    console.log(Or);
     thisHeap.insert(N[Or]);
 
     while (!thisHeap.IsEmpty()) {
@@ -53,6 +55,14 @@ function DijkstraHeap(N, Or, Nm) {
         }
     }
 }
+
+function getKeyByValue(map, value) {
+    for (const [key, val] of map.entries()) {
+        if (val === value) return key;
+    }
+    return null; // or 'Unknown'
+}
+
 function printOutput(N, Origin, Nm) {
     let Nd = 10; // number of destinations to select
     let SelectDestinations = new Array(Nd);
@@ -81,13 +91,29 @@ function printOutput(N, Origin, Nm) {
 
         console.log(`Shortest distance from ${Origin} to ${col}: ${N[col].distance}`);
 
-        let path = `${col}`;
-        col = N[col].P;
-        while (col > 0) {
-            path += ` --> ${col}`;
-            col = N[col].P;
+        let pathStr = `${getKeyByValue(nodeMapping, col)}`;
+        let prev = N[col].P;
+
+        while (prev > 0) {
+
+            let edge = N[prev].first;
+
+            
+            pathStr += ` --> ${getKeyByValue(nodeMapping, prev)}`;
+            prev = N[prev].P;
         }
-        console.log(path);
+
+        // reverse path for clarity
+        pathStr = pathStr.split(" --> ").reverse().join(" --> ");
+        console.log(pathStr);
+
+        const table = document.getElementById("nodesTable");
+        const rows = table.getElementsByTagName("tr");
+        console.log(rows);
+
+        const row = rows[i+1];
+        row.cells[3].textContent = pathStr;
+        row.cells[2].textContent = N[col].distance;
     }
 }
 
