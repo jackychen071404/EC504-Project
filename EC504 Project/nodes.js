@@ -12,7 +12,8 @@ const topMargin = 60;
 const leftMargin = 250;     
 const nodeSize = 40;    //dimensions
 
-const nodes = [];
+const nodeNames = [];
+const nodeMapping = new Map();
 const edges = [];
 
 addNodeButton.addEventListener("click", () => {
@@ -25,6 +26,11 @@ addNodeButton.addEventListener("click", () => {
         nodeInput.value = "";
         return;
     }*/
+    if (nodeNames.includes(value)) {
+        alert(`Node "${value}" already exists.`);
+        nodeInput.value = "";
+        return;
+    }
 
     const node = document.createElement("div");
     node.className = "node";
@@ -43,7 +49,7 @@ addNodeButton.addEventListener("click", () => {
     addNodeToTable(value, node);
     nodeCount++;
 
-    console.log('Current node count:', nodeCount);
+    //console.log('Current node count:', nodeCount);
     nodeInput.value = "";
 });
 
@@ -62,6 +68,8 @@ document.addEventListener('click', function(event) { //deselect nodes, click els
     if (!table.contains(event.target)) {
         for (let i = 1; i < table.rows.length; i++) {
             table.rows[i].classList.remove('selected');
+        }
+        if (previouslySelectedRow) {
             previouslySelectedRow.classList.remove('selected');
             previouslySelectedRow = null;
         }
@@ -69,16 +77,22 @@ document.addEventListener('click', function(event) { //deselect nodes, click els
 });
 
 function addNodeToTable(nodeInput, nodeDiv) {
+    const nodeName = nodeInput.trim();
+    const nodeIndex = nodeNames.length + 1;
+
     const row = nodesTable.insertRow();
     const nodeCell = row.insertCell(0);
     const knownCell = row.insertCell(1);
     const costCell = row.insertCell(2);
     const pathCell = row.insertCell(3);
 
-    nodeCell.innerText = nodeInput;
+    nodeCell.innerText = nodeName;
     knownCell.innerText = "-"; 
     costCell.innerText = "-"; 
     pathCell.innerText = "-"; 
+
+    nodeNames.push(nodeName); 
+    nodeMapping.set(nodeName, nodeIndex);
 
     tableRowToNodeMap.set(row, nodeDiv);
 
@@ -88,7 +102,6 @@ function addNodeToTable(nodeInput, nodeDiv) {
         if (previouslySelectedRow && previouslySelectedRow !== row) {
             const node1 = tableRowToNodeMap.get(previouslySelectedRow);
             const node2 = tableRowToNodeMap.get(row);
-            //alert("You clicked a different node.\nNode1: " + node1?.innerText + "\nNode2: " + node2?.innerText);
             drawLineBetweenVisualNodes(node1, node2);
 
             previouslySelectedRow.classList.remove('selected');
@@ -109,7 +122,6 @@ function addNodeToTable(nodeInput, nodeDiv) {
             previouslySelectedRow = null;
         }
     });
-    
 }
 
 const connections = []; // Each item: { line, div1, div2, text}
@@ -286,15 +298,7 @@ function createEdgeListFromConnections() {
 }
 
 document.getElementById('dijkstraButton').addEventListener('click', function() {
-    const originNodeId = originInput.value.trim();
-    if (originNodeId === "") {
-        alert("Please enter a valid origin node ID!");
-        return;
-    }
-
-    console.log("Origin node entered:", originNodeId);
-
-    console.log("edgeCount: ",edgeCount);
+    //console.log(edgeCount);
     
     const edgeList = createEdgeListFromConnections();
     let formattedEdgeList = '';
@@ -303,12 +307,27 @@ document.getElementById('dijkstraButton').addEventListener('click', function() {
         formattedEdgeList += `${edge[0]} ${edge[1]} ${edge[2]}\n`;
     }
 
+    const originNodeId = originInput.value.trim();
+    if (originNodeId === "") {
+        alert("Please enter a valid origin node ID!");
+        return;
+    }
+    if (!nodeMapping.has(originNodeId)) {
+        alert("Origin node does not exist!");
+        return;
+    }
+
+    console.log("Origin node entered:", originNodeId);
+    console.log("node entered:", nodeMapping);
+
+
+
+
     // Now you will call the DijkstraHeap function from your imported module
     const nodes = new Array(nodeCount + 1);
     for (let i = 1; i <= nodeCount; i++) {
         nodes[i] = new NodeItem(i);
     }
-    
 
     // Assuming createEdgeListFromConnections() returns a valid edge list
     for (const edge of edgeList) {
@@ -325,8 +344,9 @@ document.getElementById('dijkstraButton').addEventListener('click', function() {
         nodes[i].position = -1;
     }
 
-    const Origin = originNodeId; // Use the input node
+    const Origin = nodeMapping.get(originNodeId);  // Use the input node
     console.log("CALLING Dijkstra Heap\n");
+    //console.log(nodes);
     DijkstraHeap(nodes, Origin, nodeCount);
 
     console.log("PRINTING RESULTS:");
