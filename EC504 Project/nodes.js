@@ -14,7 +14,7 @@ const nodeSize = 40;    //dimensions
 
 const nodeNames = [];
 const nodeMapping = new Map();
-const edges = [];
+const reverseMapping = new Map();
 
 addNodeButton.addEventListener("click", () => {
     const value = nodeInput.value.trim();
@@ -93,6 +93,7 @@ function addNodeToTable(nodeInput, nodeDiv) {
 
     nodeNames.push(nodeName); 
     nodeMapping.set(nodeName, nodeIndex);
+    reverseMapping.set(nodeIndex, nodeName);
 
     tableRowToNodeMap.set(row, nodeDiv);
 
@@ -266,7 +267,6 @@ function makeDraggable(el) {
 
 function createEdgeListFromConnections() {
     const edgeList = [];
-    const nodeMapping = new Map();
     let nodeId = 1;
 
     //map node names to numbers
@@ -320,40 +320,51 @@ document.getElementById('dijkstraButton').addEventListener('click', function() {
     console.log("Origin node entered:", originNodeId);
     console.log("node entered:", nodeMapping);
 
-
-
-
-    // Now you will call the DijkstraHeap function from your imported module
-    const nodes = new Array(nodeCount + 1);
-    for (let i = 1; i <= nodeCount; i++) {
-        nodes[i] = new NodeItem(i);
-    }
-
-    // Assuming createEdgeListFromConnections() returns a valid edge list
-    for (const edge of edgeList) {
-        const [start, end, length] = edge;
-        const arc = new Arc(end, length);
-        arc.next = nodes[start].first;
-        nodes[start].first = arc;
-    }
-
-    // Reset the nodes
-    for (let i = 1; i <= nodeCount; i++) {
-        nodes[i].distance = 99999999; // LARGE
-        nodes[i].P = -1;
-        nodes[i].position = -1;
-    }
-
-    const Origin = nodeMapping.get(originNodeId);  // Use the input node
-    console.log("CALLING Dijkstra Heap\n");
-    //console.log(nodes);
-    DijkstraHeap(nodes, Origin, nodeCount);
-
-    console.log("PRINTING RESULTS:");
-    printOutput(nodes, Origin, nodeCount);
     const blob = new Blob([formattedEdgeList], { type: 'text/plain' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = 'edge_list.txt';
     link.click();
+
+    const maxnodes = 100; // Define maxnodes as needed
+    const LARGE = Infinity; // Define a large value for initialization
+
+    let Na, Nm, Or; // Num edges, num vertices, origin node for shortest path tree
+    let Nodes = new Array(maxnodes).fill(null).map(() => ({ first: null, id: 0, distance: LARGE, P: -1, position: -1 }));
+    let edge;
+    for (let i=0;i<=nodeCount;i++){  // Initialize nodes
+        Nodes[i].first = null;
+        Nodes[i].id = i;
+        Nodes[i].distance = LARGE;
+        Nodes[i].P = -1;
+        Nodes[i].position = -1;
+    }
+
+    const lines = formattedEdgeList.split('\n');
+    [Nm, Na] = lines[0].split(' ').map(Number);
+
+    for (let i = 1; i <= Nm+1; i++) {  // Initialize nodes
+        Nodes[i].id = i;
+    }
+
+    // Read arcs: we create these dynamically, store them in linked lists
+    for (let i = 1; i <= Na; i++) {
+        const [Or, end, length] = lines[i].split(' ').map(Number);
+        edge = { end, length, next: Nodes[Or].first };
+        Nodes[Or].first = edge;
+
+        //reverse edge too for undirected
+        edge = { end: Or, length, next: Nodes[end].first };
+        Nodes[end].first = edge;
+    }
+
+    const Origin = nodeMapping.get(originNodeId);  // Use the input node
+    console.log("CALLING Dijkstra Heap\n");
+    //console.log(nodes);
+    DijkstraHeap(Nodes, Origin, nodeCount);
+
+    console.log("PRINTING RESULTS:");
+    printOutput(Nodes, Origin, nodeCount);
 });
+
+export {nodeMapping, reverseMapping};
