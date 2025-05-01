@@ -244,9 +244,11 @@ function createTextForLine(line, midX, midY) {
 
     newText.addEventListener("click", () => {
         const newValue = prompt('Enter new edge value:', newText.textContent);
-        if (newValue !== null && newValue.trim() !== "") {
-            newText.textContent = newValue.trim();  //edit values
-            //updateConnectedLines();  // Update the lines if necessary
+        //only positive numbers or zero
+        if (newValue !== null && newValue.trim() !== "" && /^[+]?\d+(\.\d+)?$/.test(newValue.trim())) {
+            newText.textContent = newValue.trim();  
+        } else {
+            alert("Please enter a valid non-negative number.");
         }
     });
 
