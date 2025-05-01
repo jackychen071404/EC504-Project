@@ -78,6 +78,17 @@
                 border: 3px solid yellow;
             }
 
+            #log {
+                max-height: 3.6em;      
+                overflow-y: auto;
+                padding: 8px;
+                border: 1px solid #ccc;
+                background: #f9f9f9;
+                font-family: monospace;
+                font-size: 14px;
+                line-height: 1.2em;  
+            }
+
         </style>
     </head>
 
@@ -88,7 +99,7 @@
                 <input type="text" id="nodeValueInput" placeholder="Enter node value" />
                 <button id="addNodeButton">Add Node</button>
             </div>
-            <div id="log" style="max-height: 250px; overflow-y: auto; border: 1px solid #454242; padding: 10px; font-family: monospace; background: #f9f9f9;"></div>
+            <div id="log"></div>
             <div style="display: flex; align-items: center; margin-left: auto;">
                 <input type="text" id="Or" placeholder="Enter origin node" />
                 <button id="dijkstraButton">Run Dijkstra's Algorithm to Final</button>
