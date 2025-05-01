@@ -30,7 +30,7 @@ function DijkstraHeap(N, Or, Nm) {
     const thisHeap = new Heap();
 
     N[Or].distance = 0;
-    console.log(Or);
+    //console.log(Or);
     thisHeap.insert(N[Or]);
 
     while (!thisHeap.IsEmpty()) {
@@ -64,7 +64,7 @@ function getKeyByValue(map, value) {
 }
 
 function printOutput(N, Origin, Nm) {
-    let Nd = 10; // number of destinations to select
+    let Nd = 100; // number of destinations to select
     let SelectDestinations = new Array(Nd);
     let take, col;
 
@@ -89,7 +89,7 @@ function printOutput(N, Origin, Nm) {
             continue;
         }
 
-        console.log(`Shortest distance from ${Origin} to ${col}: ${N[col].distance}`);
+        //console.log(`Shortest distance from ${Origin} to ${col}: ${N[col].distance}`);
 
         let pathStr = `${getKeyByValue(nodeMapping, col)}`;
         let prev = N[col].P;
@@ -105,11 +105,11 @@ function printOutput(N, Origin, Nm) {
 
         // reverse path for clarity
         pathStr = pathStr.split(" --> ").reverse().join(" --> ");
-        console.log(pathStr);
+        //console.log(pathStr);
 
         const table = document.getElementById("nodesTable");
         const rows = table.getElementsByTagName("tr");
-        console.log(rows);
+        //console.log(rows);
 
         const row = rows[i+1];
         row.cells[3].textContent = pathStr;
