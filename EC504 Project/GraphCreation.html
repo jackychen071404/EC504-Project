@@ -72,6 +72,12 @@
                 cursor: move;
             }
 
+            .node.highlighted {
+                background-color: orange; /* Change background color */
+                box-shadow: 0 0 10px orange; /* Add a glowing effect */
+                border: 3px solid yellow;
+            }
+
         </style>
     </head>
 
@@ -81,12 +87,13 @@
             <div id="add_nodes" style="padding: 10px">
                 <input type="text" id="nodeValueInput" placeholder="Enter node value" />
                 <button id="addNodeButton">Add Node</button>
-                <span style="margin-left: 10px;">Right Click for Links</span>
             </div>
+            <div id="log" style="max-height: 250px; overflow-y: auto; border: 1px solid #454242; padding: 10px; font-family: monospace; background: #f9f9f9;"></div>
             <div style="display: flex; align-items: center; margin-left: auto;">
                 <input type="text" id="Or" placeholder="Enter origin node" />
-                <button id="dijkstraButton">Run Dijkstra's Algorithm</button>
+                <button id="dijkstraButton">Run Dijkstra's Algorithm to Final</button>
             </div>
+            <button id="dijkstraButtonSteps">Run Dijkstra's Algorithm Step by Step</button>
         </div>
 
         <svg id="graphLines" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
@@ -108,6 +115,7 @@
         <script type="module" src="myHeap.js"></script>
         <script type="module" src="shortPaths.js"></script>
         <script type="module" src="nodes.js"></script>
+        <script type="module" src="animation.js"></script>
         
     </body>
 </html>
