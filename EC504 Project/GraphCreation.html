@@ -30,7 +30,7 @@
 
             #NodeTable {
                 width: 250px;
-                height: 100vh;
+                height: calc(100vh - 20px);
                 background-color: #f9f9f9;
                 border-right: 1px solid #ccc;
                 padding: 10px;
@@ -102,7 +102,7 @@
             Step by Step Log:<div id="log"></div>
             <div style="display: flex; align-items: center; margin-left: auto;">
                 <input type="text" id="Or" placeholder="Enter origin node" />
-                <button id="dijkstraButton">Run Dijkstra's Algorithm to Final</button>
+                <button id="dijkstraButton">Run Dijkstra's Algorithm Instantly and Download Edgelist</button>
             </div>
             <button id="dijkstraButtonSteps">Run Dijkstra's Algorithm Step by Step</button>
         </div>
@@ -112,6 +112,7 @@
         
         <div id="leftBar">
             <div id="NodeTable">
+                <p style="text-align:center;">Click on two nodes to create an edge. Click the edge value to change it</style>
                 <h4 style="text-align: center;">Nodes Table (for instant run)</h4>
                 <table id="nodesTable">
                     <tr>
