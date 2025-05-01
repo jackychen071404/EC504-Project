@@ -23,18 +23,21 @@ function initializeDijkstraStepByStep(N, Or, Nm) {
     };
 }
 
-function logToScreen(message) {
+function logToScreen(message, isBold = false) {
     const logDiv = document.getElementById('log');
-    if (logDiv.lastChild) {
-        logDiv.lastChild.textContent = message;
-    } else {
-        const msgElem = document.createElement('div');
-        msgElem.textContent = message;
-        logDiv.appendChild(msgElem);
-    }
+    const msgElem = document.createElement('div');
+    msgElem.innerHTML = isBold ? `<strong>${message}</strong>` : message;
+    logDiv.appendChild(msgElem);
+    logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+function clearLog() {
+    const logDiv = document.getElementById('log');
+    logDiv.innerHTML = '';
 }
 
 function runDijkstraStep() {
+    clearLog();
     const { heap, N } = dijkstraState;
 
     if (heap.IsEmpty()) {
@@ -47,24 +50,46 @@ function runDijkstraStep() {
     const u = heap.remove_min();
     dijkstraState.current = u.id;
 
-    logToScreen(`Visiting node ${reverseMapping.get(u.id)} with distance ${u.distance}`);
+    logToScreen(`Visiting node ${reverseMapping.get(u.id)} with distance ${u.distance}`, true);
     console.log(`Visiting node ${reverseMapping.get(u.id)} with distance ${u.distance}`);
-    highlightNode(u.id);  // Optional animation hook
+    highlightNode(u.id);
+
+    let pathStr = `${reverseMapping.get(u.id)}`;
+    let prev = N[u.id].P;
+
+    while (prev !== undefined && prev >= 0) {
+        pathStr += ` ← ${reverseMapping.get(prev)}`;
+        prev = N[prev].P;
+    }
+    pathStr = pathStr.split(" ← ").reverse().join(" → ");
+    logToScreen(`Path to ${reverseMapping.get(u.id)}: ${pathStr}`, true); //bold the final nodes
+    console.log(`Path to ${reverseMapping.get(u.id)}: ${pathStr}`);
 
     let edge = u.first;
     while (edge !== null) {
         const v = edge.end;
         const dv = u.distance + edge.length;
 
+        console.log(`Considering edge ${reverseMapping.get(u.id)} -> ${reverseMapping.get(v)} with length ${edge.length}`);
+        logToScreen(`Relaxing edge ${reverseMapping.get(u.id)} → ${reverseMapping.get(v)} (length ${edge.length})`);
+
         if (N[v].distance > dv) {
+            const wasUnvisited = N[v].distance === Infinity;
             N[v].distance = dv;
             N[v].P = u.id;
 
             if (N[v].position >= 0) {
                 heap.decreaseKey(N[v].position, dv);
+                console.log(`Updated distance of ${reverseMapping.get(v)} to ${dv}, via decreaseKey`);
+                logToScreen(`Updated ${reverseMapping.get(v)}: new dist ${dv} (via decreaseKey)`);
             } else {
                 heap.insert(N[v]);
+                console.log(`Discovered ${reverseMapping.get(v)} with dist ${dv}, inserting into heap`);
+                logToScreen(`Discovered ${reverseMapping.get(v)}: new dist ${dv} (inserted into heap)`);
             }
+        } else {
+            console.log(`No update for ${reverseMapping.get(v)}; current dist is ${N[v].distance}, potential is ${dv}`);
+            logToScreen(`No update for ${reverseMapping.get(v)} (current dist: ${N[v].distance}, potential: ${dv})`);
         }
 
         edge = edge.next;
