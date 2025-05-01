@@ -114,6 +114,11 @@ function printOutput(N, Origin, Nm) {
         const row = rows[i+1];
         row.cells[3].textContent = pathStr;
         row.cells[2].textContent = N[col].distance;
+        if (N[col].distance === Infinity) {
+            row.cells[1].textContent = "F";
+        } else {
+            row.cells[1].textContent = "T";
+        }
     }
 }
 
