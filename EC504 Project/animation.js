@@ -21,6 +21,8 @@ function initializeDijkstraStepByStep(N, Or, Nm) {
         finished: false,
         current: null
     };
+    logToScreen("Dijkstra initialized. Click again to run the first step.", true);
+    console.log("Dijkstra initialized. Click again to run the first step.");
 }
 
 function logToScreen(message, isBold = false) {
