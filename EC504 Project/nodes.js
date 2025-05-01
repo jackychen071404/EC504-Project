@@ -1,6 +1,7 @@
 let nodeCount = 0; //number of nodes: accurate
 let edgeCount = 0; //number of edges: accurate
 import { NodeItem, Arc, DijkstraHeap, printOutput } from './shortPaths.js';
+import {runDijkstraStep, initializeDijkstraStepByStep, dijkstraState} from './animation.js';
 
 
 const addNodeButton = document.getElementById("addNodeButton"); //addNode button
@@ -15,6 +16,16 @@ const nodeSize = 40;    //dimensions
 const nodeNames = [];
 const nodeMapping = new Map();
 const reverseMapping = new Map();
+let graphInitialized = false;
+
+function resetGraph() { //when new node is added, new edge is added, or new origin node is selected, reset graph
+    graphInitialized = false;
+    const nodes = document.querySelectorAll('.node');
+    nodes.forEach(node => {
+        node.classList.remove('highlighted');
+    });
+    console.log("Graph reset and dehighlighted");
+}
 
 addNodeButton.addEventListener("click", () => {
     const value = nodeInput.value.trim();
@@ -35,6 +46,7 @@ addNodeButton.addEventListener("click", () => {
     const node = document.createElement("div");
     node.className = "node";
     node.innerText = value;
+    node.id = `node-${value}`;
 
     //Randomize position (can't be within margin)
     const x = Math.floor(Math.random() * (window.innerWidth - leftMargin - nodeSize)) + leftMargin;
@@ -76,7 +88,10 @@ document.addEventListener('click', function(event) { //deselect nodes, click els
     }
 });
 
+document.getElementById('Or').addEventListener('input', resetGraph); //reset Graph if origin node is changed at all
+
 function addNodeToTable(nodeInput, nodeDiv) {
+    resetGraph();
     const nodeName = nodeInput.trim();
     const nodeIndex = nodeNames.length + 1;
 
@@ -103,6 +118,7 @@ function addNodeToTable(nodeInput, nodeDiv) {
         if (previouslySelectedRow && previouslySelectedRow !== row) {
             const node1 = tableRowToNodeMap.get(previouslySelectedRow);
             const node2 = tableRowToNodeMap.get(row);
+            resetGraph();
             drawLineBetweenVisualNodes(node1, node2);
 
             previouslySelectedRow.classList.remove('selected');
@@ -317,8 +333,8 @@ document.getElementById('dijkstraButton').addEventListener('click', function() {
         return;
     }
 
-    console.log("Origin node entered:", originNodeId);
-    console.log("node entered:", nodeMapping);
+    //console.log("Origin node entered:", originNodeId);
+    //console.log("node entered:", nodeMapping);
 
     const blob = new Blob([formattedEdgeList], { type: 'text/plain' });
     const link = document.createElement('a');
@@ -359,12 +375,67 @@ document.getElementById('dijkstraButton').addEventListener('click', function() {
     }
 
     const Origin = nodeMapping.get(originNodeId);  // Use the input node
-    console.log("CALLING Dijkstra Heap\n");
-    //console.log(nodes);
+    //console.log("CALLING Dijkstra Heap\n");
     DijkstraHeap(Nodes, Origin, nodeCount);
 
-    console.log("PRINTING RESULTS:");
+    //console.log("PRINTING RESULTS:");
     printOutput(Nodes, Origin, nodeCount);
 });
+
+function initializeGraph() {
+    const edgeList = createEdgeListFromConnections();
+    let formattedEdgeList = `${nodeCount} ${edgeCount}\n`;
+    for (const edge of edgeList) {
+        formattedEdgeList += `${edge[0]} ${edge[1]} ${edge[2]}\n`;
+    }
+
+    const originNodeId = originInput.value.trim();
+    if (originNodeId === "") {
+        alert("Please enter a valid origin node ID!");
+        return null;
+    }
+    if (!nodeMapping.has(originNodeId)) {
+        alert("Origin node does not exist!");
+        return null;
+    }
+
+    const Or = nodeMapping.get(originNodeId);
+    const maxnodes = 100;
+    const LARGE = Infinity;
+
+    const Nodes = new Array(maxnodes).fill(null).map((_, i) => ({
+        first: null, id: i, distance: LARGE, P: -1, position: -1
+    }));
+
+    const lines = formattedEdgeList.trim().split('\n');
+    const [Nm, Na] = lines[0].split(' ').map(Number);
+
+    for (let i = 1; i <= Na; i++) {
+        const [start, end, length] = lines[i].split(' ').map(Number);
+        let edge = { end, length, next: Nodes[start].first };
+        Nodes[start].first = edge;
+
+        edge = { end: start, length, next: Nodes[end].first };
+        Nodes[end].first = edge;
+    }
+
+    return { Nodes, Or, Nm };
+}
+
+document.getElementById('dijkstraButtonSteps').addEventListener('click', () => {
+    if (!graphInitialized) {
+        const result = initializeGraph();
+        if (!result) return;
+
+        const { Nodes, Or, Nm } = result;
+        initializeDijkstraStepByStep(Nodes, Or, Nm);
+        graphInitialized = true;
+    } else if (dijkstraState.finished) {
+        alert("Dijkstra is already finished. To run the same simulation, delete the origin node and type in the same origin node to reset. Also, if you add a new node, edge or pick a different origin node, you can run a simulation on the new graph.");
+    } else {
+        runDijkstraStep();
+    }
+});
+
 
 export {nodeMapping, reverseMapping};
